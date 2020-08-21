@@ -6,9 +6,9 @@ module.exports = {
     findById
 };
 
-function findBy(filter) {
-    return db("users as u")
-    .where(filter)
+function findBy(username) {
+    return db("users")
+    .where(username)
     .orderBy("id");
   }
 

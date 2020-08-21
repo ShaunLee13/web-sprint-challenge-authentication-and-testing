@@ -3,11 +3,12 @@ const Users = require('../users/users-model')
 const constants = require('../config/config-vars')
 const jwt = require('jsonwebtoken')
 const bcryptjs = require('bcryptjs')
+const { verifyUser } = require('./user-verification')
 
 router.post('/register', (req, res) => {
   const user = req.body;
 
-    if (user.username && user.password) {
+    if (verifyUser(user)) {
       user.password = bcryptjs.hashSync(user.password, constants.rounds);
       Users.add(user)
         .then(user => {
@@ -24,12 +25,12 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-  const { username, password } = req.body;
+  const login = req.body;
 
-  if (username && password) {
-    Users.findBy({ username: username })
+  if (verifyUser(login)) {
+    Users.findBy({ username: login.username })
       .then(([user]) => {
-        if (user && bcryptjs.compareSync(password, user.password)) {
+        if (user && bcryptjs.compareSync(login.password, user.password)) {
           const token = signToken(user)
 
           res.status(200).json({ message: "Access granted", token });
